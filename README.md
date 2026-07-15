@@ -27,6 +27,36 @@ Standart yapay zeka araçları kodunuzdaki her ufak detayı (kullanılmayan değ
 2. **Kritiklik Skoru:** Eğer kodda `if password == 'admin123'` gibi sisteme aykırı, düşük olasılıklı (beklenmedik) bir satır varsa, modelin olasılık matematiği anında dibe vurur. Sistem bunu yakalar ve yapay zekanın "uydurmasına" (halüsinasyona) izin vermeden doğrudan **1.0 Kritiklik Skoru (Kırmızı Alarmlı Çatallanma)** üretir.
 3. **Context İzolasyonu (Prompt Injection Koruması):** Sistem analiz ettiği kodu izole bir kapsül içinde inceler. Böylece kendi içinde LLM terimleri (enerji, prompt, semantik vs.) barındıran kodlar bile sistemi manipüle edemez.
 
+### Sistem Mimarisi (Akış Diyagramı)
+
+```mermaid
+graph TD
+    A[Ham Girdi Verisi<br>Kod / Log / Mimari] --> B(Context İzolasyon Kalkanı<br>Prompt Injection Koruması)
+    B --> C{Llama.cpp Motoru<br>logits_all=True}
+    
+    C -->|Sinir Ağı Olasılıklarını Çeker| D[Logprobs Matrisi]
+    
+    D --> E(Termodinamik Filtre<br>Doğal Logaritma Ortalaması)
+    
+    E --> F{I.w > 0.7 mi?}
+    
+    F -->|EVET: Yüksek Enerji| G[ÇATALLANMA TESPİT EDİLDİ<br>Kritiklik Skoru: 1.0]
+    F -->|HAYIR: Düşük Enerji| H[GÜRÜLTÜ FİLTRELENDİ<br>Kritiklik Skoru: ~0.1]
+    
+    G --> I((Nihai Rapor Çıktısı))
+    H --> I
+    
+    style A fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
+    style B fill:#1e1e1e,stroke:#6366f1,stroke-width:2px,color:#fff
+    style C fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#fff
+    style D fill:#1e1e1e,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style E fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
+    style F fill:#1e1e1e,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style G fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
+    style H fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
+    style I fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
+```
+
 > 💡 **Neden Maxwell? (Motor ve Direksiyon Metaforu)**  
 > Standart bir yapay zeka (örn: Qwen 7B) devasa bir veriyi (kod tabanı, sunucu logları, mimari tasarımlar veya karmaşık iş akışları) okuduğunda, kritik bir sistem çöküş riskini (örn: bir veritabanı kilitlenme anı veya `admin123` arka kapısı) görebilir. Ancak aynı zamanda ufak bir yazım hatasını, gereksiz bir boşluğu veya önemsiz bir log uyarısını da görüp hepsini **aynı kefeye koyarak** size 10 maddelik uzun, "gürültülü" bir liste verir.  
 > Maxwell Motoru ise modelin boğazını sıkarak şunu söyler: *"Bana diğer 9 ufak hatayı anlatıp kafamı ütüleme. İçlerindeki en kaotik, matematiksel olarak en beklenmedik olan (Surprisal) 1 numaralı yapısal çatallanmayı (Bifurcation) bul ve sadece onu söyle!"*  
@@ -78,6 +108,36 @@ Standard AI code reviewers will list every minor detail (unused variables, white
 1. **True Mathematical Surprisal:** Instead of asking the model to "guess" a score, the engine uses `llama-cpp-python` with `logits_all=True` to extract raw neural **Logprobs**. It calculates the average natural logarithm of these probabilities to compute the pure $I(w)$ Surprisal value.
 2. **Criticality Score:** If there is a highly unexpected, anomalous line in the code (like a hardcoded backdoor `if password == 'admin123'`), the model's token probability drops exponentially. The engine intercepts this math and hardcodes a **1.0 Criticality Score** (Bifurcation Point), completely eliminating LLM score hallucination.
 3. **Context Isolation (Prompt Injection Shield):** The engine wraps the target code in a strict containment prompt. This ensures that even if you feed it code that contains AI terminology (prompts, semantic gravity, energy), the model won't get confused and will still analyze it purely as a structural observer.
+
+### System Architecture (Flow Diagram)
+
+```mermaid
+graph TD
+    A[Raw Input Data<br>Code / Logs / Architecture] --> B(Context Isolation Shield<br>Prevents Prompt Injection)
+    B --> C{Llama.cpp Engine<br>logits_all=True}
+    
+    C -->|Extracts Neural Probabilities| D[Logprobs Matrix]
+    
+    D --> E(Thermodynamic Filter<br>Average Natural Logarithm)
+    
+    E --> F{Is I.w > 0.7 ?}
+    
+    F -->|YES: High Energy| G[BIFURCATION DETECTED<br>Criticality Score: 1.0]
+    F -->|NO: Low Energy| H[NOISE FILTERED<br>Criticality Score: ~0.1]
+    
+    G --> I((Final Output Report))
+    H --> I
+    
+    style A fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
+    style B fill:#1e1e1e,stroke:#6366f1,stroke-width:2px,color:#fff
+    style C fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#fff
+    style D fill:#1e1e1e,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style E fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
+    style F fill:#1e1e1e,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style G fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
+    style H fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
+    style I fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
+```
 
 > 💡 **Why Maxwell? (The Engine vs. Steering Metaphor)**  
 > When a standard AI (e.g., Qwen 7B) reads a massive dataset (a codebase, server logs, architectural designs, or complex business workflows), it might spot a critical system-collapse risk (like a database deadlock or an `admin123` backdoor). However, it will also notice a minor typo, an unused variable, or a harmless warning, treating them all equally and giving you a 10-point list of noise.  
