@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maxwell Engine | Termodinamik Kod Müfettişi</title>
+    <title>Maxwell Engine | Thermodynamic Code Inspector</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -163,22 +163,22 @@
     <div class="container">
         <header class="header">
             <h1>🌀 Maxwell Engine</h1>
-            <p>Yapay zekanın uydurma skorlamasını çöpe atan <b>Termodinamik Kod Müfettişi</b>. Kodunuzun matematiksel <i>Beklenmezlik (Surprisal)</i> değerini hesaplayarak, mimarinizdeki yüksek enerjili saatli bombaları tespit eder.</p>
+            <p>The <b>Thermodynamic Code Inspector</b> that trashes AI hallucinated scoring. By calculating the mathematical <i>Surprisal</i> of your code, it detects high-energy time bombs and structural bifurcations in your architecture.</p>
         </header>
         
         <div class="main-grid">
             <!-- Sol Panel -->
             <div class="card">
                 <div class="mode-selector">
-                    <div class="mode-btn active" id="modeMaxwell" onclick="setMode('maxwell')">🌀 Maxwell Motoru</div>
-                    <div class="mode-btn" id="modeStandard" onclick="setMode('standard')">🤖 Standart LLM</div>
+                    <div class="mode-btn active" id="modeMaxwell" onclick="setMode('maxwell')">🌀 Maxwell Engine</div>
+                    <div class="mode-btn" id="modeStandard" onclick="setMode('standard')">🤖 Standard LLM</div>
                 </div>
-                <h3><span>{ }</span> Girdi Katmanı (Kod / Log / Doküman)</h3>
+                <h3><span>{ }</span> Input Layer (Code / Log / Doc)</h3>
                 <div class="code-input-wrapper">
-                    <textarea id="codeInput" placeholder="Analiz edilmesini istediğiniz kodu buraya yapıştırın..."></textarea>
+                    <textarea id="codeInput" placeholder="Paste the code you want to analyze here..."></textarea>
                 </div>
                 <button class="action-btn" id="analyzeBtn" onclick="analyzeCode()">
-                    <span id="btnText">🔥 Termodinamik Analizi Başlat</span>
+                    <span id="btnText">🔥 Initiate Thermodynamic Analysis</span>
                     <div class="spinner" id="spinner"></div>
                 </button>
             </div>
@@ -186,13 +186,13 @@
             <!-- Sağ Panel -->
             <div class="results-panel">
                 <div class="card" style="height: 100%;">
-                    <h3><span>📊</span> Analiz Sonuçları</h3>
+                    <h3><span>📊</span> Analysis Results</h3>
                     
                     <div class="error-msg" id="errorMsg"></div>
                     
                     <div class="empty-state" id="emptyState">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
-                        <p>Maxwell Motoru veri bekliyor...<br>Kodu yapıştırıp analizi başlatın.</p>
+                        <p>Maxwell Engine is waiting for data...<br>Paste code and initiate analysis.</p>
                     </div>
                     
                     <div class="result-content" id="resultContent">
@@ -200,7 +200,7 @@
                         <!-- Skor -->
                         <div class="score-container">
                             <div class="score-header">
-                                <span class="score-title">Kritiklik Skoru (Entropi İndeksi)</span>
+                                <span class="score-title">Criticality Score (Entropy Index)</span>
                                 <span class="score-val" id="resScore">0.0</span>
                             </div>
                             <div class="progress-track">
@@ -211,38 +211,38 @@
                         <!-- Metrikler -->
                         <div class="metrics-grid">
                             <div class="metric-box">
-                                <span class="m-label">Fraktal Boyut</span>
+                                <span class="m-label">Fractal Dimension</span>
                                 <span class="m-value" id="resFractal">—</span>
                             </div>
                             <div class="metric-box" id="bifurcationBox">
-                                <span class="m-label">Çatallanma Uyarısı</span>
+                                <span class="m-label">Bifurcation Warning</span>
                                 <span class="m-value" id="resBifurcation">—</span>
-                                <span class="m-sub" id="resDev">Sapma Skoru: 0.0</span>
+                                <span class="m-sub" id="resDev">Deviation Score: 0.0</span>
                             </div>
                             <div class="metric-box" style="grid-column: span 2;">
-                                <span class="m-label">Bilgi Yoğunluğu</span>
+                                <span class="m-label">Information Density</span>
                                 <span class="m-value" id="resDensity" style="color: var(--accent-cyan);">—</span>
                             </div>
                         </div>
                         
                         <!-- Öneri -->
                         <div class="suggestion-card">
-                            <div class="s-title">Termodinamik Öneri</div>
-                            <div class="s-text" id="resSuggestion">Öneri üretilemedi.</div>
+                            <div class="s-title">Thermodynamic Suggestion</div>
+                            <div class="s-text" id="resSuggestion">No suggestion generated.</div>
                         </div>
                     </div>
                     
                     <div class="standard-view" id="standardContent">
                         <div class="std-box">
-                            <h4>Bulunan Hatalar</h4>
+                            <h4>Found Errors</h4>
                             <pre id="stdHatalar">—</pre>
                         </div>
                         <div class="std-box">
-                            <h4>Güvenlik Açıkları</h4>
+                            <h4>Security Vulnerabilities</h4>
                             <pre id="stdGuvenlik">—</pre>
                         </div>
                         <div class="std-box" style="border-left: 4px solid var(--accent-amber);">
-                            <h4 style="color: var(--accent-amber);">Standart Öneri</h4>
+                            <h4 style="color: var(--accent-amber);">Standard Suggestion</h4>
                             <pre id="stdOneri">—</pre>
                         </div>
                     </div>
@@ -261,9 +261,9 @@
             
             const btnText = document.getElementById('btnText');
             if (mode === 'maxwell') {
-                btnText.innerHTML = "🔥 Termodinamik Analizi Başlat";
+                btnText.innerHTML = "🔥 Initiate Thermodynamic Analysis";
             } else {
-                btnText.innerHTML = "Linter Analizini Başlat (Standart)";
+                btnText.innerHTML = "Initiate Linter Analysis (Standard)";
             }
         }
         
@@ -279,13 +279,13 @@
             const errorMsg = document.getElementById('errorMsg');
             
             if (!code.trim()) {
-                showError("Lütfen analiz edilecek bir kod yapıştırın.");
+                showError("Please paste code to analyze.");
                 return;
             }
             
             // UI State: Loading
             btn.disabled = true;
-            btnText.textContent = "Çözümleniyor...";
+            btnText.textContent = "Analyzing...";
             spinner.style.display = "block";
             emptyState.style.display = "none";
             resultContent.style.display = "none";
@@ -302,7 +302,7 @@
                 const data = await response.json();
                 
                 if (!response.ok || data.error) {
-                    throw new Error(data.error || "Sunucu hatası.");
+                    throw new Error(data.error || "Server error.");
                 }
                 
                 // Başarılı Sonuçları Yerleştir
@@ -326,9 +326,9 @@
                 document.getElementById('resultContent').style.display = "none";
                 document.getElementById('standardContent').style.display = "flex";
                 
-                document.getElementById('stdHatalar').textContent = res.bulunan_hatalar || "Veri yok";
-                document.getElementById('stdGuvenlik').textContent = res.guvenlik_aciklari || "Veri yok";
-                document.getElementById('stdOneri').textContent = res.standart_oneri || "Veri yok";
+                document.getElementById('stdHatalar').textContent = res.bulunan_hatalar || "No data";
+                document.getElementById('stdGuvenlik').textContent = res.guvenlik_aciklari || "No data";
+                document.getElementById('stdOneri').textContent = res.standart_oneri || "No data";
                 return;
             }
             
@@ -357,9 +357,9 @@
             scoreEl.style.color = color;
             
             // Diğer veriler
-            document.getElementById('resFractal').textContent = res.fraktal_boyut || "Bulunamadı";
-            document.getElementById('resDensity').textContent = res.bilgi_yogunlugu || "Bilinmiyor";
-            document.getElementById('resSuggestion').textContent = res.termodinamik_oneri || "Öneri yok.";
+            document.getElementById('resFractal').textContent = res.fraktal_boyut || "Not Found";
+            document.getElementById('resDensity').textContent = res.bilgi_yogunlugu || "Unknown";
+            document.getElementById('resSuggestion').textContent = res.termodinamik_oneri || "No suggestion.";
             
             // Çatallanma Uyarısı (Bifurcation)
             const bifBox = document.getElementById('bifurcationBox');
@@ -369,15 +369,15 @@
             const isRisk = res.catallanma_uyarisi?.mevcut;
             if (isRisk) {
                 bifBox.classList.add('danger');
-                bifText.textContent = "EVET (Kritik Risk)";
+                bifText.textContent = "YES (Critical Risk)";
                 bifText.style.color = "var(--accent-rose)";
             } else {
                 bifBox.classList.remove('danger');
-                bifText.textContent = "Hayır";
+                bifText.textContent = "No";
                 bifText.style.color = "var(--text-primary)";
             }
             
-            bifDev.textContent = `Sapma Skoru: ${res.catallanma_uyarisi?.baglam_farki_skoru || 0.0}`;
+            bifDev.textContent = `Deviation Score: ${res.catallanma_uyarisi?.baglam_farki_skoru || 0.0}`;
         }
         
         function showError(msg) {
