@@ -95,7 +95,8 @@ class CustomInferenceLayer:
                     "type": "json_object",
                     "schema": schema
                 },
-                temperature=0.7 # TR: Formatlı üretimde halüsinasyonu en aza indirmek için düşük sıcaklık / EN: Low temp to minimize hallucination in formatted generation
+                temperature=0.7, # TR: Formatlı üretimde halüsinasyonu en aza indirmek için düşük sıcaklık / EN: Low temp to minimize hallucination in formatted generation
+                max_tokens=None # TR: Çıktı limitini modelin maksimum bağlam boyutuna göre dinamik ayarlar / EN: Dynamically sets limit based on model's context window
             )
             content = response['choices'][0]['message']['content']
             return json.loads(content, strict=False)
