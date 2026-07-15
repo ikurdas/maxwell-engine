@@ -1,0 +1,3 @@
+# GitHub'ın projenin ana dilini yanlış hesaplamasını engeller
+# HTML dosyasını dil istatistiklerinden çıkarıyoruz, böylece "Python" ana dil olur.
+static/* linguist-vendored
