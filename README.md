@@ -46,7 +46,7 @@ Eğer Maxwell Motoru'nu binlerce dosyayı saniyeler içinde analiz edecek devasa
 > **🔒 Gizlilik Notu:** Maxwell Motoru %100 lokal (çevrimdışı) çalışır. İlk çalıştırdığınızda HuggingFace üzerinden açık kaynaklı bir GGUF modelini (Qwen2.5) bilgisayarınıza indirir. Kodunuz hiçbir bulut API'sine (OpenAI, Anthropic vb.) gönderilmez.
 
 #### 1. Web Arayüzü (Önerilen)
-DorgEnt NLP tasarımıyla güçlendirilmiş, A/B testi yapabileceğiniz modern web arayüzünü başlatmak için:
+A/B testi yapabileceğiniz modern web arayüzünü başlatmak için:
 ```bash
 # Gerekli kütüphaneleri yükleyin (FastAPI, Uvicorn, Llama-cpp vb.)
 pip install -r requirements.txt
