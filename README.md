@@ -36,35 +36,39 @@ graph TD
     
     C -->|Sinir Ağı Olasılıklarını Çeker| D[Logprobs Matrisi]
     
-    D --> E(Termodinamik Filtre<br>Doğal Logaritma Ortalaması)
+    D --> E(Fraktal Router / FVDB<br>Lokal Entropi Parçalaması)
     
-    E --> F{I.w > 0.7 mi?}
+    E -->|En Riskli Bloğu LLM'e Yönlendirir| F(Termodinamik Filtre<br>Doğal Logaritma Ortalaması)
     
-    F -->|EVET: Yüksek Enerji| G[ÇATALLANMA TESPİT EDİLDİ<br>Kritiklik Skoru: 1.0]
-    F -->|HAYIR: Düşük Enerji| H[GÜRÜLTÜ FİLTRELENDİ<br>Kritiklik Skoru: ~0.1]
+    F --> G{I.w > 0.7 mi?}
     
-    G --> I((Nihai Rapor Çıktısı))
-    H --> I
+    G -->|EVET: Yüksek Enerji| H[ÇATALLANMA TESPİT EDİLDİ<br>Kritiklik Skoru: 1.0]
+    G -->|HAYIR: Düşük Enerji| I[GÜRÜLTÜ FİLTRELENDİ<br>Kritiklik Skoru: ~0.1]
+    
+    H --> J((Nihai Rapor Çıktısı))
+    I --> J
     
     click A "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#a-ham-girdi-verisi-kod--log--mimari" "Detaylar için tıklayın"
     click B "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#b-context-i̇zolasyon-kalkanı-prompt-injection-koruması" "Detaylar için tıklayın"
     click C "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#c-llamacpp-motoru-logits_alltrue" "Detaylar için tıklayın"
     click D "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#d-logprobs-matrisi" "Detaylar için tıklayın"
-    click E "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#e-termodinamik-filtre-doğal-logaritma-ortalaması" "Detaylar için tıklayın"
-    click F "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#f-iw--07-mi-kritiklik-eşiği-kontrolü" "Detaylar için tıklayın"
-    click G "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
-    click H "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
-    click I "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#i-nihai-rapor-çıktısı-sıfır-halüsinasyon" "Detaylar için tıklayın"
+    click E "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#e-fraktal-router-fvdb-anlamsal-yonlendirme" "Detaylar için tıklayın"
+    click F "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#f-termodinamik-filtre-doğal-logaritma-ortalaması" "Detaylar için tıklayın"
+    click G "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g-iw--07-mi-kritiklik-eşiği-kontrolü" "Detaylar için tıklayın"
+    click H "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#h--i-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
+    click I "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#h--i-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
+    click J "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#j-nihai-rapor-çıktısı-sıfır-halüsinasyon" "Detaylar için tıklayın"
     
     style A fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
     style B fill:#1e1e1e,stroke:#6366f1,stroke-width:2px,color:#fff
     style C fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#fff
     style D fill:#1e1e1e,stroke:#3b82f6,stroke-width:2px,color:#fff
-    style E fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
-    style F fill:#1e1e1e,stroke:#f59e0b,stroke-width:2px,color:#fff
-    style G fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
-    style H fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
-    style I fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
+    style E fill:#0f172a,stroke:#eab308,stroke-width:2px,color:#fff
+    style F fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
+    style G fill:#1e1e1e,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style H fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
+    style I fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
+    style J fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
 ```
 
 > 💡 **Neden Maxwell? (Motor ve Direksiyon Metaforu)**  
@@ -128,35 +132,39 @@ graph TD
     
     C -->|Extracts Neural Probabilities| D[Logprobs Matrix]
     
-    D --> E(Thermodynamic Filter<br>Average Natural Logarithm)
+    D --> E(Fractal Router / FVDB<br>Local Entropy Chunking)
     
-    E --> F{Is I.w > 0.7 ?}
+    E -->|Routes Highest Energy Chunk to LLM| F(Thermodynamic Filter<br>Average Natural Logarithm)
     
-    F -->|YES: High Energy| G[BIFURCATION DETECTED<br>Criticality Score: 1.0]
-    F -->|NO: Low Energy| H[NOISE FILTERED<br>Criticality Score: ~0.1]
+    F --> G{Is I.w > 0.7 ?}
     
-    G --> I((Final Output Report))
-    H --> I
+    G -->|YES: High Energy| H[BIFURCATION DETECTED<br>Criticality Score: 1.0]
+    G -->|NO: Low Energy| I[NOISE FILTERED<br>Criticality Score: ~0.1]
+    
+    H --> J((Final Output Report))
+    I --> J
     
     click A "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#a-raw-input-data-code--logs--architecture" "Click for details"
     click B "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#b-context-isolation-shield-prompt-injection-shield" "Click for details"
     click C "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#c-llamacpp-engine-logits_alltrue" "Click for details"
     click D "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#d-logprobs-matrix" "Click for details"
-    click E "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#e-thermodynamic-filter-average-natural-logarithm" "Click for details"
-    click F "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#f-is-iw--07-criticality-threshold-check" "Click for details"
-    click G "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-bifurcation-and-noise-separation" "Click for details"
-    click H "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-bifurcation-and-noise-separation" "Click for details"
-    click I "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#i-final-output-report-zero-hallucination" "Click for details"
+    click E "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#e-fraktal-router-fvdb-anlamsal-yonlendirme" "Click for details"
+    click F "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#f-thermodynamic-filter-average-natural-logarithm" "Click for details"
+    click G "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g-is-iw--07-criticality-threshold-check" "Click for details"
+    click H "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#h--i-bifurcation-and-noise-separation" "Click for details"
+    click I "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#h--i-bifurcation-and-noise-separation" "Click for details"
+    click J "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#j-final-output-report-zero-hallucination" "Click for details"
     
     style A fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
     style B fill:#1e1e1e,stroke:#6366f1,stroke-width:2px,color:#fff
     style C fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#fff
     style D fill:#1e1e1e,stroke:#3b82f6,stroke-width:2px,color:#fff
-    style E fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
-    style F fill:#1e1e1e,stroke:#f59e0b,stroke-width:2px,color:#fff
-    style G fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
-    style H fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
-    style I fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
+    style E fill:#0f172a,stroke:#eab308,stroke-width:2px,color:#fff
+    style F fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff
+    style G fill:#1e1e1e,stroke:#f59e0b,stroke-width:2px,color:#fff
+    style H fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fff
+    style I fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
+    style J fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
 ```
 
 > 💡 **Why Maxwell? (The Engine vs. Steering Metaphor)**  
