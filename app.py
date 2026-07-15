@@ -47,20 +47,28 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 class AnalyzeRequest(BaseModel):
     code: str
     mode: str = "maxwell"
+    use_fractal_router: bool = True
 
 STANDARD_PROMPT = """Sen kıdemli bir yazılım mühendisisin.
 Aşağıdaki kodu güvenlik açıkları, mantık hataları ve genel kod kalitesi açısından incele.
 Cevabını sadece JSON formatında ver."""
 
+# Standart analiz için JSON Schema
 standard_schema = {
     "type": "object",
     "properties": {
-        "bulunan_hatalar": {"type": "string", "description": "Kodda bulunan tüm hatalar"},
-        "guvenlik_aciklari": {"type": "string", "description": "Güvenlik zafiyetleri"},
-        "standart_oneri": {"type": "string", "description": "Nasıl düzeltileceğine dair öneri"}
+        "guvenlik_aciklari": {
+            "type": "array",
+            "items": {"type": "string"}
+        },
+        "mantik_hatalari": {
+            "type": "array",
+            "items": {"type": "string"}
+        },
+        "genel_kalite": {"type": "string"},
+        "puan": {"type": "integer"}
     },
-    "required": ["bulunan_hatalar", "guvenlik_aciklari", "standart_oneri"],
-    "additionalProperties": False
+    "required": ["guvenlik_aciklari", "mantik_hatalari", "genel_kalite", "puan"]
 }
 
 @app.get("/", response_class=HTMLResponse)
@@ -86,7 +94,7 @@ async def analyze_endpoint(req: AnalyzeRequest):
             result_json = engine.inference.generate_report(messages, standard_schema)
             return {"mode": "standard", "result": result_json}
         else:
-            result_str = engine.analyze(req.code)
+            result_str = engine.analyze(req.code, use_fractal_router=req.use_fractal_router)
             # TR: strict=False çünkü LLM bazen kontrol karakteri üretebilir
             # EN: strict=False because LLM can sometimes produce control characters
             result_json = json.loads(result_str, strict=False)

@@ -80,6 +80,71 @@ class CustomInferenceLayer:
             print(f"Error calculating Surprisal: {e}")
             return 0.5
 
+    def calculate_fractal_surprisal(self, text: str) -> dict:
+        """
+        TR: Metni parçalara (chunks) böler, her parçanın Surprisal değerini lokal olarak hesaplar.
+        TR: En yüksek entropiye sahip (en kırılgan) parçayı bulup Fractal Router için döndürür.
+        """
+        try:
+            tokens = self.llm.tokenize(text.encode('utf-8'))
+            if len(tokens) <= 1:
+                return {"global_surprisal": 0.5, "highest_energy_chunk": text, "highest_energy_score": 0.5}
+                
+            self.llm.eval(tokens)
+            logits = self.llm._scores
+            
+            logits_maxs = np.amax(logits, axis=-1, keepdims=True)
+            logits_maxs[~np.isfinite(logits_maxs)] = 0
+            subtract_maxs = np.subtract(logits, logits_maxs, dtype=np.single)
+            exp = np.exp(subtract_maxs)
+            sum_exp = np.sum(exp, axis=-1, keepdims=True)
+            log_sum_exp = np.log(sum_exp)
+            logprobs = np.subtract(subtract_maxs, log_sum_exp, dtype=np.single)
+            
+            actual_token_logprobs = []
+            for i in range(1, len(tokens)):
+                token_id = tokens[i]
+                lp = float(logprobs[i-1, token_id])
+                actual_token_logprobs.append(lp)
+                
+            if not actual_token_logprobs:
+                return {"global_surprisal": 0.5, "highest_energy_chunk": text, "highest_energy_score": 0.5}
+
+            # Global Surprisal (Genel Sistem Entropisi)
+            global_avg = sum(actual_token_logprobs) / len(actual_token_logprobs)
+            global_surprisal = min(max((-global_avg) / 10.0, 0.0), 1.0)
+            
+            # Chunking and Fractal Weighting (Her 64 tokenda bir / Mezo Katman)
+            CHUNK_SIZE = 64
+            chunks_info = []
+            
+            # actual_token_logprobs listesi tokens[1:]'e denk gelir
+            for i in range(0, len(actual_token_logprobs), CHUNK_SIZE):
+                chunk_lps = actual_token_logprobs[i:i+CHUNK_SIZE]
+                chunk_tokens = tokens[i+1 : i+1+CHUNK_SIZE]
+                
+                chunk_avg = sum(chunk_lps) / len(chunk_lps)
+                chunk_surprisal = min(max((-chunk_avg) / 10.0, 0.0), 1.0)
+                
+                chunk_text = self.llm.detokenize(chunk_tokens).decode('utf-8', errors='ignore')
+                chunks_info.append({
+                    "text": chunk_text.strip(),
+                    "surprisal": chunk_surprisal
+                })
+                
+            # En kaotik parçayı (Çatallanma Noktasını) bul
+            highest_chunk = max(chunks_info, key=lambda x: x["surprisal"])
+            
+            return {
+                "global_surprisal": round(global_surprisal, 2),
+                "highest_energy_chunk": highest_chunk["text"],
+                "highest_energy_score": round(highest_chunk["surprisal"], 2)
+            }
+            
+        except Exception as e:
+            print(f"Error calculating Fractal Surprisal: {e}")
+            return {"global_surprisal": 0.5, "highest_energy_chunk": text[:100], "highest_energy_score": 0.5}
+
     def generate_report(self, messages: list, schema: dict) -> dict:
         """
         TR: GBNF Gramer zorlaması (Constrained Decoding) kullanarak,
