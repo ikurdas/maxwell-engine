@@ -89,4 +89,7 @@ async def analyze_endpoint(req: AnalyzeRequest):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=3141, reload=False)
+    # TR: HuggingFace Spaces üzerinde çalışıyorsa port 7860 olmak zorundadır.
+    import os
+    port = 7860 if os.environ.get("SPACE_ID") else 3141
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)
