@@ -6,3 +6,4 @@ llama-cpp-python
 fastapi
 uvicorn
 gradio
+spaces

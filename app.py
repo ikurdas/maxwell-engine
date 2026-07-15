@@ -8,6 +8,16 @@ from pydantic import BaseModel
 from huggingface_hub import hf_hub_download
 import uvicorn
 
+# TR: HuggingFace ZeroGPU zorunluluğunu aşmak için kukla (dummy) fonksiyon
+import os
+try:
+    import spaces
+    @spaces.GPU
+    def dummy_gpu_function():
+        pass
+except ImportError:
+    pass
+
 from core.engine import MaxwellEngine
 
 engine = None
