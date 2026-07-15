@@ -3,8 +3,7 @@ title: Maxwell Engine
 emoji: 🌌
 colorFrom: indigo
 colorTo: blue
-sdk: gradio
-app_file: app.py
+sdk: docker
 pinned: false
 ---
 
