@@ -21,8 +21,8 @@ async def lifespan(app: FastAPI):
     # EN: Note: You can make 1.5B default if you want faster startup.
     print("[*] Starting Maxwell Engine (FastAPI)...")
     try:
-        repo_id = "bartowski/Qwen2.5-7B-Instruct-GGUF"
-        filename = "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
+        repo_id = "Qwen/Qwen2.5-1.5B-Instruct-GGUF"
+        filename = "qwen2.5-1.5b-instruct-q4_k_m.gguf"
         model_path = hf_hub_download(repo_id=repo_id, filename=filename)
         engine = MaxwellEngine(model_path=model_path)
         print("[*] Model loaded successfully.")
