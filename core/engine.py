@@ -32,11 +32,16 @@ class MaxwellEngine:
         ]
         
         # TR: 1. Gerçek Matematiksel Surprisal'ı hesapla (LLM'in halüsinasyonunu ezmek için)
-        # EN: 1. Calculate genuine mathematical Surprisal (to crush LLM hallucination)
+        # TR: 1. Matematiksel Surprisal'ı (I(w)) hesapla
+        # EN: 1. Calculate Mathematical Surprisal (I(w))
         real_surprisal = self.inference.calculate_surprisal(data)
         
+        # TR: KV Cache'i temizle ki ikinci (JSON) üretim aşamasında context window (n_ctx) aşılmasın
+        # EN: Clear KV Cache to prevent context window (n_ctx) overflow in the second (JSON) generation phase
+        self.inference.llm.reset()
+        
         # TR: 2. Raporu JSON Grammar Constraint ile üret (Halüsinasyon %0)
-        # EN: 2. Generate report using JSON Grammar Constraint (0% Hallucination)
+        # EN: 2. Generate Report using JSON Grammar Constraint (0% Hallucination)
         report_data = self.inference.generate_report(messages, self.schema)
         
         if "error" in report_data:

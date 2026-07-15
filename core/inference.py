@@ -1,5 +1,6 @@
 import json
 import math
+import numpy as np
 from llama_cpp import Llama
 
 class CustomInferenceLayer:
@@ -7,6 +8,7 @@ class CustomInferenceLayer:
         self.llm = Llama(
             model_path=model_path,
             n_ctx=n_ctx,
+            n_batch=n_ctx, # TR: Chunking yüzünden logits_all=True'nun sistemi kilitlemesini engelle / EN: Prevent logits_all=True from hanging the system due to chunking
             n_gpu_layers=-1, # TR: Apple Silicon (Metal) için tüm katmanları GPU'ya al / EN: Offload all layers to GPU for Apple Silicon (Metal)
             logits_all=True, # TR: PROMPT İÇİN LOGPROBS HESAPLAMASINI AÇAR / EN: ENABLES LOGPROBS CALCULATION FOR PROMPT
             verbose=False
@@ -22,30 +24,46 @@ class CustomInferenceLayer:
         EN: Tokenizes the text and extracts the mathematical "Surprisal" average
         EN: from the model's own probability (logprobs) distribution.
         """
-        # TR: Metni modele completion formatında yollayarak sadece logprob'ları alıyoruz (üretim yapmıyoruz)
-        # EN: We send the text to the model in completion format to only get logprobs (no generation)
         try:
-            response = self.llm(
-                text,
-                max_tokens=1,
-                echo=True,
-                logprobs=1
-            )
+            # TR: Metni tokenize et / EN: Tokenize text
+            tokens = self.llm.tokenize(text.encode('utf-8'))
+            if len(tokens) <= 1:
+                return 0.5
+                
+            # TR: Modeli evaluate et (C++ tarafında prompt işlenir)
+            # EN: Evaluate model (prompt is processed in C++)
+            self.llm.eval(tokens)
             
-            # TR: Tüm token'ların logprob'larını topla
-            # EN: Sum logprobs of all tokens
-            logprobs = response['choices'][0]['logprobs']['token_logprobs']
+            # TR: Logits matrisini doğrudan al: shape (n_tokens, vocab_size)
+            # EN: Get logits matrix directly: shape (n_tokens, vocab_size)
+            logits = self.llm._scores
             
-            # TR: İlk token'ın logprob'u None olabilir (bağlam yok), onu filtrele
-            # EN: The first token's logprob might be None (no context), filter it out
-            valid_logprobs = [lp for lp in logprobs if lp is not None]
+            # TR: Numpy ile çok hızlı Log-Softmax hesaplaması (llama-cpp-python'daki yavaş python döngüsünü bypass eder)
+            # EN: Ultra-fast Log-Softmax with Numpy (bypasses slow python loop in llama-cpp-python)
+            logits_maxs = np.amax(logits, axis=-1, keepdims=True)
+            logits_maxs[~np.isfinite(logits_maxs)] = 0
+            subtract_maxs = np.subtract(logits, logits_maxs, dtype=np.single)
+            exp = np.exp(subtract_maxs)
+            sum_exp = np.sum(exp, axis=-1, keepdims=True)
+            log_sum_exp = np.log(sum_exp)
+            logprobs = np.subtract(subtract_maxs, log_sum_exp, dtype=np.single)
             
-            if not valid_logprobs:
+            # TR: Sadece prompt içindeki *gerçek* token'ların logprob'larını al
+            # EN: Extract logprobs ONLY for the *actual* tokens in the prompt
+            actual_token_logprobs = []
+            for i in range(1, len(tokens)):
+                token_id = tokens[i]
+                # i. token'ın olasılığı, i-1. token'ın logits'inden gelir
+                # The probability of the i-th token comes from the (i-1)-th token's logits
+                lp = float(logprobs[i-1, token_id])
+                actual_token_logprobs.append(lp)
+                
+            if not actual_token_logprobs:
                 return 0.5 # Fallback
                 
             # TR: Ortalama logprob
             # EN: Average logprob
-            avg_logprob = sum(valid_logprobs) / len(valid_logprobs)
+            avg_logprob = sum(actual_token_logprobs) / len(actual_token_logprobs)
             
             # TR: Matematiksel Surprisal I = -log(P). logprobs zaten ln(P) (doğal logaritma) döner.
             # EN: Mathematical Surprisal I = -log(P). logprobs already return ln(P) (natural logarithm).
