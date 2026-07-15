@@ -129,15 +129,23 @@
         .progress-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
         
         /* Metrics Grid */
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .metrics-grid { display: flex; flex-direction: column; gap: 12px; }
         .metric-box {
             background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
-            padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px;
+            padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px;
         }
         .metric-box.danger { border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); }
-        .m-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-        .m-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: 600; }
-        .m-sub { font-size: 0.75rem; color: var(--text-secondary); }
+        .m-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .m-value { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 1rem; 
+            color: var(--text-primary); 
+            font-weight: 500; 
+            white-space: pre-wrap; 
+            word-break: break-word; 
+            line-height: 1.6;
+        }
+        .m-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: -4px; }
 
         /* Suggestion */
         .suggestion-card {
@@ -223,7 +231,7 @@
                                 <span class="m-value" id="resBifurcation">—</span>
                                 <span class="m-sub" id="resDev">Deviation Score: 0.0</span>
                             </div>
-                            <div class="metric-box" style="grid-column: span 2;">
+                            <div class="metric-box">
                                 <span class="m-label">Information Density</span>
                                 <span class="m-value" id="resDensity" style="color: var(--accent-cyan);">—</span>
                             </div>
