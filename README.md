@@ -46,15 +46,15 @@ graph TD
     G --> I((Nihai Rapor Çıktısı))
     H --> I
     
-    click A "architecture_explanation.md#a-ham-girdi-verisi-kod--log--mimari" "Detaylar için tıklayın"
-    click B "architecture_explanation.md#b-context-i̇zolasyon-kalkanı-prompt-injection-koruması" "Detaylar için tıklayın"
-    click C "architecture_explanation.md#c-llamacpp-motoru-logits_alltrue" "Detaylar için tıklayın"
-    click D "architecture_explanation.md#d-logprobs-matrisi" "Detaylar için tıklayın"
-    click E "architecture_explanation.md#e-termodinamik-filtre-doğal-logaritma-ortalaması" "Detaylar için tıklayın"
-    click F "architecture_explanation.md#f-iw--07-mi-kritiklik-eşiği-kontrolü" "Detaylar için tıklayın"
-    click G "architecture_explanation.md#g--h-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
-    click H "architecture_explanation.md#g--h-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
-    click I "architecture_explanation.md#i-nihai-rapor-çıktısı-sıfır-halüsinasyon" "Detaylar için tıklayın"
+    click A "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#a-ham-girdi-verisi-kod--log--mimari" "Detaylar için tıklayın"
+    click B "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#b-context-i̇zolasyon-kalkanı-prompt-injection-koruması" "Detaylar için tıklayın"
+    click C "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#c-llamacpp-motoru-logits_alltrue" "Detaylar için tıklayın"
+    click D "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#d-logprobs-matrisi" "Detaylar için tıklayın"
+    click E "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#e-termodinamik-filtre-doğal-logaritma-ortalaması" "Detaylar için tıklayın"
+    click F "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#f-iw--07-mi-kritiklik-eşiği-kontrolü" "Detaylar için tıklayın"
+    click G "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
+    click H "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-çatallanma-bifurcation-ve-gürültü-noise-ayrımı" "Detaylar için tıklayın"
+    click I "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#i-nihai-rapor-çıktısı-sıfır-halüsinasyon" "Detaylar için tıklayın"
     
     style A fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
     style B fill:#1e1e1e,stroke:#6366f1,stroke-width:2px,color:#fff
@@ -138,15 +138,15 @@ graph TD
     G --> I((Final Output Report))
     H --> I
     
-    click A "architecture_explanation.md#a-raw-input-data-code--logs--architecture" "Click for details"
-    click B "architecture_explanation.md#b-context-isolation-shield-prompt-injection-shield" "Click for details"
-    click C "architecture_explanation.md#c-llamacpp-engine-logits_alltrue" "Click for details"
-    click D "architecture_explanation.md#d-logprobs-matrix" "Click for details"
-    click E "architecture_explanation.md#e-thermodynamic-filter-average-natural-logarithm" "Click for details"
-    click F "architecture_explanation.md#f-is-iw--07-criticality-threshold-check" "Click for details"
-    click G "architecture_explanation.md#g--h-bifurcation-and-noise-separation" "Click for details"
-    click H "architecture_explanation.md#g--h-bifurcation-and-noise-separation" "Click for details"
-    click I "architecture_explanation.md#i-final-output-report-zero-hallucination" "Click for details"
+    click A "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#a-raw-input-data-code--logs--architecture" "Click for details"
+    click B "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#b-context-isolation-shield-prompt-injection-shield" "Click for details"
+    click C "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#c-llamacpp-engine-logits_alltrue" "Click for details"
+    click D "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#d-logprobs-matrix" "Click for details"
+    click E "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#e-thermodynamic-filter-average-natural-logarithm" "Click for details"
+    click F "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#f-is-iw--07-criticality-threshold-check" "Click for details"
+    click G "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-bifurcation-and-noise-separation" "Click for details"
+    click H "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#g--h-bifurcation-and-noise-separation" "Click for details"
+    click I "https://github.com/ikurdas/maxwell-engine/blob/main/architecture_explanation.md#i-final-output-report-zero-hallucination" "Click for details"
     
     style A fill:#111827,stroke:#06b6d4,stroke-width:2px,color:#fff
     style B fill:#1e1e1e,stroke:#6366f1,stroke-width:2px,color:#fff
