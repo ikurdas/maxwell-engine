@@ -1,3 +1,13 @@
+---
+title: Maxwell Engine
+emoji: 🌌
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+app_file: app.py
+pinned: false
+---
+
 # Maxwell Engine (Formerly Antigravity)
 
 **Maxwell Engine** is a Zero-Hallucination, Thermodynamic Code & Architecture Inspector. Unlike standard AI linters that flag every minor code smell (producing noise), Maxwell evaluates code using genuine mathematical *Surprisal* (Logprobs) to find the absolute most critical, system-breaking anomalies (Bifurcations) in your project.
