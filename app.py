@@ -8,23 +8,6 @@ from pydantic import BaseModel
 from huggingface_hub import hf_hub_download
 import uvicorn
 
-# TR: HuggingFace ZeroGPU zorunluluğunu aşmak için kukla (dummy) Gradio uygulaması
-import os
-import gradio as gr
-try:
-    import spaces
-    @spaces.GPU
-    def dummy_gpu_function():
-        return "Bypass"
-except ImportError:
-    def dummy_gpu_function():
-        return "Local"
-
-with gr.Blocks() as dummy_demo:
-    gr.Markdown("ZeroGPU Bypass")
-    btn = gr.Button("Click")
-    btn.click(dummy_gpu_function, inputs=[], outputs=[])
-
 from core.engine import MaxwellEngine
 
 engine = None
@@ -49,9 +32,6 @@ async def lifespan(app: FastAPI):
     print("[*] Shutting down server, performing cleanup...")
 
 app = FastAPI(lifespan=lifespan)
-
-# TR: Kukla Gradio uygulamasını FastAPI'ye monte et
-app = gr.mount_gradio_app(app, dummy_demo, path="/gradio")
 
 # TR: Statik dosyaları (HTML/CSS/JS) sunmak için
 # EN: To serve static files (HTML/CSS/JS)
