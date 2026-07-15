@@ -1,0 +1,20 @@
+# Python Sanal Ortam (Virtual Environment)
+venv/
+env/
+.env
+
+# Derlenmiş Python Dosyaları
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Mac OS Dosyaları
+.DS_Store
+
+# Loglar ve Geçici Test Dosyaları
+*.log
+system_log.txt
+
+# Model Önbellekleri (Eğer çalışma dizininde lokal bir model klasörü açılırsa diye)
+*.gguf
+models/

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maxwell Engine | Termodinamik Kod Müfettişi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border: rgba(6, 182, 212, 0.2);
+            --border-glow: rgba(6, 182, 212, 0.5);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-indigo: #6366f1;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --gradient-primary: linear-gradient(135deg, #06b6d4, #6366f1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary); color: var(--text-primary);
+            min-height: 100vh; overflow-x: hidden;
+        }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(6,182,212,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 50%);
+            z-index: 0; animation: bgPulse 8s ease-in-out infinite alternate; pointer-events: none;
+        }
+        @keyframes bgPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+
+        .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .header { text-align: center; padding: 40px 0 30px; }
+        .header h1 {
+            font-size: 2.8rem; font-weight: 700;
+            background: var(--gradient-primary); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 8px; letter-spacing: -1px;
+        }
+        .header p { color: var(--text-secondary); font-size: 1.05rem; font-weight: 300; max-width: 700px; margin: 0 auto; line-height: 1.6; }
+
+        .main-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; margin-top: 20px; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        /* Left Panel - Input */
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column;
+        }
+        .card h3 {
+            font-size: 0.85rem; font-weight: 600; color: var(--accent-cyan);
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        
+        /* Mode Selector */
+        .mode-selector {
+            display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .mode-btn {
+            flex: 1; padding: 10px; text-align: center; color: var(--text-muted); cursor: pointer;
+            border-radius: 8px; font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: var(--bg-card); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .code-input-wrapper {
+            flex: 1; display: flex; flex-direction: column; position: relative;
+        }
+        textarea {
+            width: 100%; height: 350px; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px; color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; outline: none;
+            resize: vertical; transition: all 0.2s; line-height: 1.5;
+        }
+        textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); }
+        textarea::placeholder { color: var(--text-muted); }
+        
+        .action-btn {
+            background: var(--gradient-primary); border: none; border-radius: 12px;
+            padding: 16px; color: white; font-weight: 600; cursor: pointer;
+            font-size: 1.05rem; transition: all 0.2s; width: 100%; margin-top: 20px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5); }
+        .action-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .spinner {
+            display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Right Panel - Results */
+        .results-panel { display: flex; flex-direction: column; gap: 20px; }
+        
+        .empty-state {
+            text-align: center; color: var(--text-muted); padding: 40px 20px;
+            display: flex; flex-direction: column; align-items: center; gap: 15px; height: 100%; justify-content: center;
+        }
+        .empty-state svg { width: 48px; height: 48px; opacity: 0.5; }
+
+        .result-content { display: none; flex-direction: column; gap: 20px; }
+        
+        /* Score Bar */
+        .score-container {
+            background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .score-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .score-title { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+        .score-val { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; }
+        
+        .progress-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
+        
+        /* Metrics Grid */
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .metric-box {
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+            padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .metric-box.danger { border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); }
+        .m-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .m-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: 600; }
+        .m-sub { font-size: 0.75rem; color: var(--text-secondary); }
+
+        /* Suggestion */
+        .suggestion-card {
+            background: rgba(6, 182, 212, 0.08); border-left: 4px solid var(--accent-cyan);
+            padding: 20px; border-radius: 0 12px 12px 0;
+        }
+        .s-title { font-weight: 600; color: var(--accent-cyan); margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .s-text { line-height: 1.7; font-size: 0.95rem; color: var(--text-primary); }
+        
+        /* Standard Result View */
+        .standard-view { display: none; flex-direction: column; gap: 15px; }
+        .std-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; }
+        .std-box h4 { color: var(--accent-amber); margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; }
+        .std-box pre { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text-primary); white-space: pre-wrap; line-height: 1.6; }
+        
+        .error-msg {
+            display: none; background: rgba(244, 63, 94, 0.1); border-left: 4px solid var(--accent-rose);
+            color: var(--accent-rose); padding: 16px; border-radius: 0 12px 12px 0; font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌀 Maxwell Engine</h1>
+            <p>Yapay zekanın uydurma skorlamasını çöpe atan <b>Termodinamik Kod Müfettişi</b>. Kodunuzun matematiksel <i>Beklenmezlik (Surprisal)</i> değerini hesaplayarak, mimarinizdeki yüksek enerjili saatli bombaları tespit eder.</p>
+        </header>
+        
+        <div class="main-grid">
+            <!-- Sol Panel -->
+            <div class="card">
+                <div class="mode-selector">
+                    <div class="mode-btn active" id="modeMaxwell" onclick="setMode('maxwell')">🌀 Maxwell Motoru</div>
+                    <div class="mode-btn" id="modeStandard" onclick="setMode('standard')">🤖 Standart LLM</div>
+                </div>
+                <h3><span>{ }</span> Girdi Katmanı (Kod / Log / Doküman)</h3>
+                <div class="code-input-wrapper">
+                    <textarea id="codeInput" placeholder="Analiz edilmesini istediğiniz kodu buraya yapıştırın..."></textarea>
+                </div>
+                <button class="action-btn" id="analyzeBtn" onclick="analyzeCode()">
+                    <span id="btnText">🔥 Termodinamik Analizi Başlat</span>
+                    <div class="spinner" id="spinner"></div>
+                </button>
+            </div>
+            
+            <!-- Sağ Panel -->
+            <div class="results-panel">
+                <div class="card" style="height: 100%;">
+                    <h3><span>📊</span> Analiz Sonuçları</h3>
+                    
+                    <div class="error-msg" id="errorMsg"></div>
+                    
+                    <div class="empty-state" id="emptyState">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                        <p>Maxwell Motoru veri bekliyor...<br>Kodu yapıştırıp analizi başlatın.</p>
+                    </div>
+                    
+                    <div class="result-content" id="resultContent">
+                        
+                        <!-- Skor -->
+                        <div class="score-container">
+                            <div class="score-header">
+                                <span class="score-title">Kritiklik Skoru (Entropi İndeksi)</span>
+                                <span class="score-val" id="resScore">0.0</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" id="resBar"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Metrikler -->
+                        <div class="metrics-grid">
+                            <div class="metric-box">
+                                <span class="m-label">Fraktal Boyut</span>
+                                <span class="m-value" id="resFractal">—</span>
+                            </div>
+                            <div class="metric-box" id="bifurcationBox">
+                                <span class="m-label">Çatallanma Uyarısı</span>
+                                <span class="m-value" id="resBifurcation">—</span>
+                                <span class="m-sub" id="resDev">Sapma Skoru: 0.0</span>
+                            </div>
+                            <div class="metric-box" style="grid-column: span 2;">
+                                <span class="m-label">Bilgi Yoğunluğu</span>
+                                <span class="m-value" id="resDensity" style="color: var(--accent-cyan);">—</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Öneri -->
+                        <div class="suggestion-card">
+                            <div class="s-title">Termodinamik Öneri</div>
+                            <div class="s-text" id="resSuggestion">Öneri üretilemedi.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="standard-view" id="standardContent">
+                        <div class="std-box">
+                            <h4>Bulunan Hatalar</h4>
+                            <pre id="stdHatalar">—</pre>
+                        </div>
+                        <div class="std-box">
+                            <h4>Güvenlik Açıkları</h4>
+                            <pre id="stdGuvenlik">—</pre>
+                        </div>
+                        <div class="std-box" style="border-left: 4px solid var(--accent-amber);">
+                            <h4 style="color: var(--accent-amber);">Standart Öneri</h4>
+                            <pre id="stdOneri">—</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'maxwell';
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('modeMaxwell').classList.toggle('active', mode === 'maxwell');
+            document.getElementById('modeStandard').classList.toggle('active', mode === 'standard');
+            
+            const btnText = document.getElementById('btnText');
+            if (mode === 'maxwell') {
+                btnText.innerHTML = "🔥 Termodinamik Analizi Başlat";
+            } else {
+                btnText.innerHTML = "Linter Analizini Başlat (Standart)";
+            }
+        }
+        
+        async function analyzeCode() {
+            const code = document.getElementById('codeInput').value;
+            const btn = document.getElementById('analyzeBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            
+            const emptyState = document.getElementById('emptyState');
+            const resultContent = document.getElementById('resultContent');
+            const standardContent = document.getElementById('standardContent');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!code.trim()) {
+                showError("Lütfen analiz edilecek bir kod yapıştırın.");
+                return;
+            }
+            
+            // UI State: Loading
+            btn.disabled = true;
+            btnText.textContent = "Çözümleniyor...";
+            spinner.style.display = "block";
+            emptyState.style.display = "none";
+            resultContent.style.display = "none";
+            standardContent.style.display = "none";
+            errorMsg.style.display = "none";
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, mode: currentMode })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || "Sunucu hatası.");
+                }
+                
+                // Başarılı Sonuçları Yerleştir
+                renderResults(data);
+                
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                // UI State: Reset Button
+                btn.disabled = false;
+                setMode(currentMode); // Buton metnini geri yükle
+                spinner.style.display = "none";
+            }
+        }
+        
+        function renderResults(data) {
+            const mode = data.mode;
+            const res = data.result || data; // Geriye dönük uyumluluk
+            
+            if (mode === 'standard') {
+                document.getElementById('resultContent').style.display = "none";
+                document.getElementById('standardContent').style.display = "flex";
+                
+                document.getElementById('stdHatalar').textContent = res.bulunan_hatalar || "Veri yok";
+                document.getElementById('stdGuvenlik').textContent = res.guvenlik_aciklari || "Veri yok";
+                document.getElementById('stdOneri').textContent = res.standart_oneri || "Veri yok";
+                return;
+            }
+            
+            // Maxwell Modu
+            const resultContent = document.getElementById('resultContent');
+            resultContent.style.display = "flex";
+            document.getElementById('standardContent').style.display = "none";
+            
+            // Kritiklik Skoru
+            const score = parseFloat(res.kritiklik_skoru || 0);
+            const scoreEl = document.getElementById('resScore');
+            const barEl = document.getElementById('resBar');
+            
+            scoreEl.textContent = score.toFixed(4);
+            
+            // Bar rengi ve genişliği
+            setTimeout(() => {
+                barEl.style.width = (score * 100) + "%";
+            }, 100);
+            
+            let color = "var(--accent-emerald)";
+            if (score >= 0.7) color = "var(--accent-rose)";
+            else if (score >= 0.4) color = "var(--accent-amber)";
+            
+            barEl.style.background = color;
+            scoreEl.style.color = color;
+            
+            // Diğer veriler
+            document.getElementById('resFractal').textContent = res.fraktal_boyut || "Bulunamadı";
+            document.getElementById('resDensity').textContent = res.bilgi_yogunlugu || "Bilinmiyor";
+            document.getElementById('resSuggestion').textContent = res.termodinamik_oneri || "Öneri yok.";
+            
+            // Çatallanma Uyarısı (Bifurcation)
+            const bifBox = document.getElementById('bifurcationBox');
+            const bifText = document.getElementById('resBifurcation');
+            const bifDev = document.getElementById('resDev');
+            
+            const isRisk = res.catallanma_uyarisi?.mevcut;
+            if (isRisk) {
+                bifBox.classList.add('danger');
+                bifText.textContent = "EVET (Kritik Risk)";
+                bifText.style.color = "var(--accent-rose)";
+            } else {
+                bifBox.classList.remove('danger');
+                bifText.textContent = "Hayır";
+                bifText.style.color = "var(--text-primary)";
+            }
+            
+            bifDev.textContent = `Sapma Skoru: ${res.catallanma_uyarisi?.baglam_farki_skoru || 0.0}`;
+        }
+        
+        function showError(msg) {
+            const errorMsg = document.getElementById('errorMsg');
+            const emptyState = document.getElementById('emptyState');
+            
+            errorMsg.textContent = msg;
+            errorMsg.style.display = "block";
+            emptyState.style.display = "none";
+            document.getElementById('resultContent').style.display = "none";
+            document.getElementById('standardContent').style.display = "none";
+        }
+    </script>
+</body>
+</html>
