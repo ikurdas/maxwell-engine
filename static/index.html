@@ -48,7 +48,7 @@
         }
         .header p { color: var(--text-secondary); font-size: 1.05rem; font-weight: 300; max-width: 700px; margin: 0 auto; line-height: 1.6; }
 
-        .main-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; margin-top: 20px; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
         @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
 
         /* Left Panel - Input */
@@ -165,9 +165,40 @@
             display: none; background: rgba(244, 63, 94, 0.1); border-left: 4px solid var(--accent-rose);
             color: var(--accent-rose); padding: 16px; border-radius: 0 12px 12px 0; font-weight: 500;
         }
+        
+        /* Error Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-content {
+            background: var(--bg-card); border: 1px solid rgba(244, 63, 94, 0.4);
+            border-radius: 16px; padding: 30px; max-width: 600px; width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); text-align: left;
+            transform: translateY(20px); transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-title { color: var(--accent-rose); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .modal-text {
+            color: var(--text-primary); font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+            background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+        }
     </style>
 </head>
 <body>
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚠️ LLM Generation Error</h3>
+            <div class="modal-text" id="modalErrorText"></div>
+            <button class="action-btn" style="margin-top: 20px; padding: 12px; max-width: 200px; margin-left: auto; margin-right: auto;" onclick="closeModal()">Close & Resume</button>
+        </div>
+    </div>
+
     <div class="container">
         <header class="header">
             <h1>🌀 Maxwell Engine</h1>
@@ -317,6 +348,14 @@
                     throw new Error(data.error || "Server error.");
                 }
                 
+                // TR: Eger model JSON yerine hata dondurduyse (ornegin n_ctx asimi veya yarim kalma)
+                // EN: If model returned an error instead of JSON (e.g., n_ctx overflow or truncation)
+                if (data.result && data.result.error) {
+                    showModalError(data.result.error);
+                    renderResults({ mode: data.mode, result: {} }); // Reset results gracefully
+                    return;
+                }
+                
                 // Başarılı Sonuçları Yerleştir
                 renderResults(data);
                 
@@ -392,6 +431,15 @@
             bifDev.textContent = `Deviation Score: ${res.catallanma_uyarisi?.baglam_farki_skoru || 0.0}`;
         }
         
+        function showModalError(msg) {
+            document.getElementById('modalErrorText').textContent = msg;
+            document.getElementById('errorModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('errorModal').classList.remove('active');
+        }
+
         function showError(msg) {
             const errorMsg = document.getElementById('errorMsg');
             const emptyState = document.getElementById('emptyState');

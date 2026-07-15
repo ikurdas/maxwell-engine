@@ -4,7 +4,7 @@ import numpy as np
 from llama_cpp import Llama
 
 class CustomInferenceLayer:
-    def __init__(self, model_path: str, n_ctx: int = 4096):
+    def __init__(self, model_path: str, n_ctx: int = 8192):
         self.llm = Llama(
             model_path=model_path,
             n_ctx=n_ctx,
