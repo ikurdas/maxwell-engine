@@ -68,14 +68,15 @@ class CustomInferenceLayer:
             
             # TR: Matematiksel Surprisal I = -log(P). logprobs zaten ln(P) (doğal logaritma) döner.
             # EN: Mathematical Surprisal I = -log(P). logprobs already return ln(P) (natural logarithm).
-            surprisal = -avg_logprob
+            raw_surprisal = -avg_logprob
             
-            # TR: Skorlama: surprisal değeri genelde 0 ile 15 arası değişir.
-            # TR: Bunu 0-1 arasına (Kritiklik skoru) normalize edelim. (Ampirik yaklaşım: max entropy ~ 10.0)
-            # EN: Scoring: surprisal value usually ranges from 0 to 15.
-            # EN: Normalize this to 0-1 (Criticality score). (Empirical approach: max entropy ~ 10.0)
-            normalized_score = min(max(surprisal / 10.0, 0.0), 1.0)
-            return round(normalized_score, 2)
+            # TR: Legacy Normalization
+            normalized_score = min(max(raw_surprisal / 10.0, 0.0), 1.0)
+            
+            return {
+                "raw_surprisal": round(raw_surprisal, 4),
+                "normalized_surprisal": round(normalized_score, 4)
+            }
             
         except MaxwellError:
             raise
@@ -114,7 +115,8 @@ class CustomInferenceLayer:
 
             # Global Surprisal (Genel Sistem Entropisi)
             global_avg = sum(actual_token_logprobs) / len(actual_token_logprobs)
-            global_surprisal = min(max((-global_avg) / 10.0, 0.0), 1.0)
+            raw_global_surprisal = -global_avg
+            normalized_global_surprisal = min(max(raw_global_surprisal / 10.0, 0.0), 1.0)
             
             # Chunking and Fractal Weighting (Her 64 tokenda bir / Mezo Katman)
             CHUNK_SIZE = 64
@@ -126,21 +128,27 @@ class CustomInferenceLayer:
                 chunk_tokens = tokens[i+1 : i+1+CHUNK_SIZE]
                 
                 chunk_avg = sum(chunk_lps) / len(chunk_lps)
-                chunk_surprisal = min(max((-chunk_avg) / 10.0, 0.0), 1.0)
+                raw_chunk_surprisal = -chunk_avg
+                normalized_chunk_surprisal = min(max(raw_chunk_surprisal / 10.0, 0.0), 1.0)
                 
                 chunk_text = self.llm.detokenize(chunk_tokens).decode('utf-8', errors='ignore')
                 chunks_info.append({
                     "text": chunk_text.strip(),
-                    "surprisal": chunk_surprisal
+                    "raw_surprisal": raw_chunk_surprisal,
+                    "normalized_surprisal": normalized_chunk_surprisal
                 })
                 
             # En kaotik parçayı (Çatallanma Noktasını) bul
-            highest_chunk = max(chunks_info, key=lambda x: x["surprisal"])
+            highest_chunk = max(chunks_info, key=lambda x: x["raw_surprisal"])
+            peak_surprisal = highest_chunk["raw_surprisal"]
+            divergence = peak_surprisal - raw_global_surprisal
             
             return {
-                "global_surprisal": round(global_surprisal, 2),
-                "highest_energy_chunk": highest_chunk["text"],
-                "highest_energy_score": round(highest_chunk["surprisal"], 2)
+                "raw_global_surprisal": round(raw_global_surprisal, 4),
+                "normalized_global_surprisal": round(normalized_global_surprisal, 4),
+                "raw_peak_surprisal": round(peak_surprisal, 4),
+                "local_global_divergence": round(divergence, 4),
+                "highest_energy_chunk": highest_chunk["text"]
             }
             
         except MaxwellError:

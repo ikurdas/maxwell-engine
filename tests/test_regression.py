@@ -68,7 +68,8 @@ def test_metrics_separation(mock_llama):
     print("DEBUG TEST RESULT:", result_json)
     
     assert "metrics" in result_json
-    assert "global_surprisal" in result_json["metrics"]
+    assert "raw_global_surprisal" in result_json["metrics"]
+    assert "normalized_global_surprisal" in result_json["metrics"]
     assert "analysis" in result_json
     assert "kritiklik_skoru" not in result_json["analysis"] # Enforces separation
     assert result_json["analysis"]["fraktal_boyut"] == "Test Boyut"

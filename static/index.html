@@ -280,11 +280,15 @@
                         <!-- Skor -->
                         <div class="score-container">
                             <div class="score-header">
-                                <span class="score-title">Criticality Score (Entropy Index)</span>
+                                <span class="score-title">Criticality Score (Normalized)</span>
                                 <span class="score-val" id="resScore">0.0</span>
                             </div>
                             <div class="progress-track">
                                 <div class="progress-fill" id="resBar"></div>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Raw Surprisal: <span id="resRawScore" style="color: var(--text-primary); font-family: monospace;">0.0</span></span>
+                                <span>Peak Surprisal: <span id="resPeakScore" style="color: var(--text-primary); font-family: monospace;">0.0</span></span>
                             </div>
                         </div>
                         
@@ -456,11 +460,16 @@
             const analysis = res.analysis || res || {}; // Geriye dönük uyumluluk
             
             // Kritiklik Skoru (Artık sadece metrics altından geliyor)
-            const score = parseFloat(metrics.global_surprisal || analysis.kritiklik_skoru || 0);
+            const score = parseFloat(metrics.normalized_global_surprisal || metrics.global_surprisal || analysis.kritiklik_skoru || 0);
+            const rawScore = parseFloat(metrics.raw_global_surprisal || 0);
+            const peakScore = parseFloat(metrics.raw_peak_surprisal || 0);
+            
             const scoreEl = document.getElementById('resScore');
             const barEl = document.getElementById('resBar');
             
             scoreEl.textContent = score.toFixed(4);
+            document.getElementById('resRawScore').textContent = rawScore.toFixed(4);
+            document.getElementById('resPeakScore').textContent = peakScore ? peakScore.toFixed(4) : "N/A";
             
             // Bar rengi ve genişliği
             setTimeout(() => {
