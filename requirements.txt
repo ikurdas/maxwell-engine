@@ -5,3 +5,4 @@ huggingface_hub
 llama-cpp-python
 fastapi
 uvicorn
+pytest

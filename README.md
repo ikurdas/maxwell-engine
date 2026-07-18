@@ -26,6 +26,8 @@ Standart yapay zeka araçları kodunuzdaki her ufak detayı (kullanılmayan değ
 1. **Gerçek Matematiksel Surprisal Hesabı:** Modelden metni değerlendirmesini "istemek" yerine, `llama-cpp-python` aracılığıyla metnin her bir kelimesi (token) okunduğunda modelin arka planda ürettiği **Logprob (Olasılık) değerleri** hesaplanır. Bu değerlerin doğal logaritma ortalaması alınarak saf $I(w)$ Surprisal değeri hesaplanır.
 2. **Kritiklik Skoru:** Eğer kodda `if password == 'admin123'` gibi sisteme aykırı, düşük olasılıklı (beklenmedik) bir satır varsa, modelin olasılık matematiği anında dibe vurur. Sistem bunu yakalar ve yapay zekanın "uydurmasına" (halüsinasyona) izin vermeden doğrudan **1.0 Kritiklik Skoru (Kırmızı Alarmlı Çatallanma)** üretir. *(Not: Sistemde "admin123" kelimesini arayan hiçbir Kural-Tabanlı / RegEx kısayolu yoktur. Skor tamamen saf istatistiksel olasılıkların bir sonucudur).*
 3. **Context İzolasyonu (Prompt Injection Koruması):** Sistem analiz ettiği kodu izole bir kapsül içinde inceler. Böylece kendi içinde LLM terimleri (enerji, prompt, semantik vs.) barındıran kodlar bile sistemi manipüle edemez.
+4. **Fail-Explicit Hata Yönetimi (Yeni):** Sistem herhangi bir tokenization veya olasılık hesaplama hatasında analizleri sessizce gizlemek yerine `MaxwellError` (örn. `SurprisalCalculationError`) fırlatarak kurumsal güvenlik standartlarına uygun şekilde "Fail-Explicit" davranır.
+5. **Metrik İzolasyonu (Yeni):** Sistem, `kritiklik_skoru` gibi tamamen deterministik olan metrikleri LLM'in uydurmasına (hallucinate) izin vermez. Yanıtlar kesin bir şekilde `metrics` (matematiksel) ve `analysis` (LLM yorumu) olmak üzere ikiye ayrılır.
 
 ### Sistem Mimarisi (Akış Diyagramı)
 
@@ -122,6 +124,8 @@ Standard AI code reviewers will list every minor detail (unused variables, white
 1. **True Mathematical Surprisal:** Instead of asking the model to "guess" a score, the engine uses `llama-cpp-python` with `logits_all=True` to extract raw neural **Logprobs**. It calculates the average natural logarithm of these probabilities to compute the pure $I(w)$ Surprisal value.
 2. **Criticality Score:** If there is a highly unexpected, anomalous line in the code (like a hardcoded backdoor `if password == 'admin123'`), the model's token probability drops exponentially. The engine intercepts this math and computes a **1.0 Criticality Score** (Bifurcation Point), completely eliminating LLM score hallucination. *(Note: There are no rule-based or RegEx shortcuts looking for "admin123". The score is a pure, emergent product of statistical probabilities).*
 3. **Context Isolation (Prompt Injection Shield):** The engine wraps the target code in a strict containment prompt. This ensures that even if you feed it code that contains AI terminology (prompts, semantic gravity, energy), the model won't get confused and will still analyze it purely as a structural observer.
+4. **Fail-Explicit Error Handling (New):** In the event of a tokenization or mathematical calculation failure, instead of silently failing and hiding risks, the system follows enterprise security standards by raising explicit exceptions (e.g., `MaxwellError`, `SurprisalCalculationError`).
+5. **Metrics Separation (New):** The system strictly prevents the LLM from hallucinating deterministic values like `criticality_score`. The final JSON output is forcefully bifurcated into `metrics` (pure math) and `analysis` (LLM reasoning).
 
 ### System Architecture (Flow Diagram)
 
@@ -205,12 +209,4 @@ python cli.py qa_examples/bad_auth.py
 python cli.py qa_examples/bad_auth.py -m bartowski/Qwen2.5-7B-Instruct-GGUF:Qwen2.5-7B-Instruct-Q4_K_M.gguf
 ```
 
----
 
-## 🚀 Known Limitations & Roadmap
-
-Maxwell Engine is a highly experimental, bleeding-edge architectural tool. Below is the roadmap to elevate its operational maturity:
-
-* **Dynamic Baseline Normalization (Threshold Calibration):** Currently, the $I(w) > 0.7$ threshold is a heuristic barrier separating "Noise" from "Chaos". This works well but relies on a fixed scalar. The roadmap includes an automated baseline calibration phase to normalize entropy scores dynamically based on the specific repository's standard deviation.
-* **Model Variance Stabilization:** Running 1.5B models provides rapid local testing but brings high variance in token logprobs compared to 7B or 14B models. The engine will soon feature "Cross-Model Ensemble" scoring to cancel out small-model hallucinations.
-* **CI/CD Integration:** Ready-to-use GitHub Actions templates are being added to seamlessly block PRs containing catastrophic thermodynamic bifurcations.

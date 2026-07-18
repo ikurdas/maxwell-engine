@@ -2,6 +2,7 @@ import json
 import math
 import numpy as np
 from llama_cpp import Llama
+from core.errors import MaxwellError, TokenizationError, SurprisalCalculationError, InferenceError
 
 class CustomInferenceLayer:
     def __init__(self, model_path: str, n_ctx: int = 8192):
@@ -28,7 +29,7 @@ class CustomInferenceLayer:
             # TR: Metni tokenize et / EN: Tokenize text
             tokens = self.llm.tokenize(text.encode('utf-8'))
             if len(tokens) <= 1:
-                return 0.5
+                raise TokenizationError("Token list is empty or too short.")
                 
             # TR: Modeli evaluate et (C++ tarafında prompt işlenir)
             # EN: Evaluate model (prompt is processed in C++)
@@ -59,7 +60,7 @@ class CustomInferenceLayer:
                 actual_token_logprobs.append(lp)
                 
             if not actual_token_logprobs:
-                return 0.5 # Fallback
+                raise SurprisalCalculationError("No actual logprobs calculated.")
                 
             # TR: Ortalama logprob
             # EN: Average logprob
@@ -76,9 +77,10 @@ class CustomInferenceLayer:
             normalized_score = min(max(surprisal / 10.0, 0.0), 1.0)
             return round(normalized_score, 2)
             
+        except MaxwellError:
+            raise
         except Exception as e:
-            print(f"Error calculating Surprisal: {e}")
-            return 0.5
+            raise SurprisalCalculationError(f"Error calculating Surprisal: {e}")
 
     def calculate_fractal_surprisal(self, text: str) -> dict:
         """
@@ -88,7 +90,7 @@ class CustomInferenceLayer:
         try:
             tokens = self.llm.tokenize(text.encode('utf-8'))
             if len(tokens) <= 1:
-                return {"global_surprisal": 0.5, "highest_energy_chunk": text, "highest_energy_score": 0.5}
+                raise TokenizationError("Token list is empty or too short.")
                 
             self.llm.eval(tokens)
             logits = self.llm._scores
@@ -108,7 +110,7 @@ class CustomInferenceLayer:
                 actual_token_logprobs.append(lp)
                 
             if not actual_token_logprobs:
-                return {"global_surprisal": 0.5, "highest_energy_chunk": text, "highest_energy_score": 0.5}
+                raise SurprisalCalculationError("No actual logprobs calculated.")
 
             # Global Surprisal (Genel Sistem Entropisi)
             global_avg = sum(actual_token_logprobs) / len(actual_token_logprobs)
@@ -141,9 +143,10 @@ class CustomInferenceLayer:
                 "highest_energy_score": round(highest_chunk["surprisal"], 2)
             }
             
+        except MaxwellError:
+            raise
         except Exception as e:
-            print(f"Error calculating Fractal Surprisal: {e}")
-            return {"global_surprisal": 0.5, "highest_energy_chunk": text[:100], "highest_energy_score": 0.5}
+            raise SurprisalCalculationError(f"Error calculating Fractal Surprisal: {e}")
 
     def generate_report(self, messages: list, schema: dict) -> dict:
         """
@@ -166,4 +169,4 @@ class CustomInferenceLayer:
             content = response['choices'][0]['message']['content']
             return json.loads(content, strict=False)
         except Exception as e:
-            return {"error": f"Llama-cpp generation hatası: {str(e)}"}
+            raise InferenceError(f"Llama-cpp generation error: {e}")

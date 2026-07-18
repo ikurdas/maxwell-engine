@@ -25,9 +25,7 @@ Phase 4: Optimization: Sistemin toplam entropisini düşürecek, en yüksek "Bil
 IV. ÇIKTI ŞABLONU (Output Schema)
 Tüm yanıtlarında tam olarak şu JSON yapısını kullan. Asla markdown kullanma. Sadece geçerli JSON döndür:
 {
-  "kritiklik_skoru": "0.0 - 1.0 arası float değer",
   "fraktal_boyut": "string, sistemin karmaşıklık indeksi açıklaması",
-  "bilgi_yogunlugu": "Yüksek / Orta / Düşük",
   "catallanma_uyarisi": {
     "mevcut": true/false,
     "baglam_farki_skoru": "X.XX float"
