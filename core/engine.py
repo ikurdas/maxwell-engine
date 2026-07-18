@@ -4,14 +4,18 @@ from core.prompts import MASTER_PROMPT
 from core.inference import CustomInferenceLayer
 from core.errors import MaxwellError
 
+class LocalizedText(BaseModel):
+    tr: str
+    en: str
+
 class CatallanmaUyarisi(BaseModel):
     mevcut: bool
     baglam_farki_skoru: float
 
 class LLMAnalysisReport(BaseModel):
-    fraktal_boyut: str
+    fraktal_boyut: LocalizedText
     catallanma_uyarisi: CatallanmaUyarisi
-    termodinamik_oneri: str
+    termodinamik_oneri: LocalizedText
 
 class MaxwellEngine:
     def __init__(self, model_path: str):

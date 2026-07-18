@@ -164,6 +164,13 @@
             line-height: 1.6;
         }
         .m-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: -4px; }
+        
+        /* Language Tabs */
+        .lang-tabs { display: flex; gap: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
+        .lang-tab { font-size: 0.75rem; color: var(--text-muted); cursor: pointer; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+        .lang-tab.active { color: var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); }
+        .lang-content { display: none; }
+        .lang-content.active { display: block; }
 
         /* Suggestion */
         .suggestion-card {
@@ -284,8 +291,15 @@
                         <!-- Metrikler -->
                         <div class="metrics-grid">
                             <div class="metric-box">
-                                <span class="m-label">Fractal Dimension</span>
-                                <span class="m-value" id="resFractal">—</span>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="m-label">Fractal Dimension</span>
+                                    <div class="lang-tabs">
+                                        <div class="lang-tab active" onclick="switchLang('fractal', 'tr')">TÜRKÇE</div>
+                                        <div class="lang-tab" onclick="switchLang('fractal', 'en')">ENGLISH</div>
+                                    </div>
+                                </div>
+                                <span class="m-value lang-content active" id="resFractal_tr">—</span>
+                                <span class="m-value lang-content" id="resFractal_en">—</span>
                             </div>
                             <div class="metric-box" id="bifurcationBox">
                                 <span class="m-label">Bifurcation Warning</span>
@@ -300,8 +314,15 @@
                         
                         <!-- Öneri -->
                         <div class="suggestion-card">
-                            <div class="s-title">Thermodynamic Suggestion</div>
-                            <div class="s-text" id="resSuggestion">No suggestion generated.</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div class="s-title" style="margin-bottom: 0;">Thermodynamic Suggestion</div>
+                                <div class="lang-tabs" style="border: none; margin: 0; padding: 0;">
+                                    <div class="lang-tab active" onclick="switchLang('sugg', 'tr')">TÜRKÇE</div>
+                                    <div class="lang-tab" onclick="switchLang('sugg', 'en')">ENGLISH</div>
+                                </div>
+                            </div>
+                            <div class="s-text lang-content active" id="resSuggestion_tr">No suggestion generated.</div>
+                            <div class="s-text lang-content" id="resSuggestion_en">No suggestion generated.</div>
                         </div>
                     </div>
                     
@@ -380,12 +401,22 @@
                     throw new Error(data.error || "Server error.");
                 }
                 
-                // TR: Eger model JSON yerine hata dondurduyse (ornegin n_ctx asimi veya yarim kalma)
-                // EN: If model returned an error instead of JSON (e.g., n_ctx overflow or truncation)
-                if (data.result && data.result.error) {
-                    showModalError(data.result.error);
+                // TR: Eger model JSON yerine hata dondurduyse veya Fail-Explicit hatasi firlattiysa
+                // EN: If model returned an error instead of JSON or threw a Fail-Explicit error
+                if (data.result && data.result.status === 'error') {
+                    let errMsg = data.result.error.message || "Bilinmeyen bir hata oluştu.";
+                    if (data.result.error.code) {
+                        errMsg = "[" + data.result.error.code + "] " + errMsg;
+                    }
+                    showModalError(errMsg);
                     renderResults({ mode: data.mode, result: {} }); // Reset results gracefully
                     return;
+                }
+                if (data.result && data.result.error && data.result.status !== 'error') {
+                     // Eski format yedek
+                     showModalError(data.result.error);
+                     renderResults({ mode: data.mode, result: {} });
+                     return;
                 }
                 
                 // Başarılı Sonuçları Yerleştir
@@ -415,13 +446,17 @@
                 return;
             }
             
-            // Maxwell Modu
+            // Maxwell Modu (Metrics Separation Uyumlu)
             const resultContent = document.getElementById('resultContent');
             resultContent.style.display = "flex";
             document.getElementById('standardContent').style.display = "none";
             
-            // Kritiklik Skoru
-            const score = parseFloat(res.kritiklik_skoru || 0);
+            // Yeni Şema Yapısına Göre Değişkenleri Ayıkla
+            const metrics = res.metrics || {};
+            const analysis = res.analysis || res || {}; // Geriye dönük uyumluluk
+            
+            // Kritiklik Skoru (Artık sadece metrics altından geliyor)
+            const score = parseFloat(metrics.global_surprisal || analysis.kritiklik_skoru || 0);
             const scoreEl = document.getElementById('resScore');
             const barEl = document.getElementById('resBar');
             
@@ -439,18 +474,28 @@
             barEl.style.background = color;
             scoreEl.style.color = color;
             
-            // Diğer veriler
-            document.getElementById('resFractal').textContent = res.fraktal_boyut || "Not Found";
-            document.getElementById('resDensity').textContent = res.bilgi_yogunlugu || "Unknown";
-            document.getElementById('resSuggestion').textContent = res.termodinamik_oneri || "No suggestion.";
+            // Diğer veriler (Analysis altından geliyor)
+            const frac = analysis.fraktal_boyut || {};
+            document.getElementById('resFractal_tr').textContent = frac.tr || frac || "Bulunamadı";
+            document.getElementById('resFractal_en').textContent = frac.en || frac || "Not Found";
+            
+            // Bilgi yoğunluğu artık deterministik olarak backend'de hesaplanmıyor, şimdilik score üzerinden gösterelim
+            let density = "Düşük";
+            if (score > 0.7) density = "Yüksek";
+            else if (score > 0.4) density = "Orta";
+            
+            document.getElementById('resDensity').textContent = analysis.bilgi_yogunlugu || density;
+            
+            const sugg = analysis.termodinamik_oneri || {};
+            document.getElementById('resSuggestion_tr').textContent = sugg.tr || sugg || "Öneri yok.";
+            document.getElementById('resSuggestion_en').textContent = sugg.en || sugg || "No suggestion.";
             
             // Çatallanma Uyarısı (Bifurcation)
             const bifBox = document.getElementById('bifurcationBox');
             const bifText = document.getElementById('resBifurcation');
             const bifDev = document.getElementById('resDev');
             
-            const isRisk = res.catallanma_uyarisi?.mevcut;
-            if (isRisk) {
+            if (analysis.catallanma_uyarisi && analysis.catallanma_uyarisi.mevcut) {
                 bifBox.classList.add('danger');
                 bifText.textContent = "YES (Critical Risk)";
                 bifText.style.color = "var(--accent-rose)";
@@ -460,7 +505,7 @@
                 bifText.style.color = "var(--text-primary)";
             }
             
-            bifDev.textContent = `Deviation Score: ${res.catallanma_uyarisi?.baglam_farki_skoru || 0.0}`;
+            bifDev.textContent = `Deviation Score: ${analysis.catallanma_uyarisi?.baglam_farki_skoru || 0.0}`;
         }
         
         function showModalError(msg) {
@@ -470,6 +515,22 @@
         
         function closeModal() {
             document.getElementById('errorModal').classList.remove('active');
+        }
+        
+        function switchLang(section, lang) {
+            // section can be 'fractal' or 'sugg'
+            const container = document.getElementById(section === 'fractal' ? 'resFractal_' + lang : 'resSuggestion_' + lang).parentElement;
+            
+            // tabs
+            const tabs = container.querySelectorAll('.lang-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            const targetTab = Array.from(tabs).find(t => t.textContent.includes(lang.toUpperCase()) || (lang === 'en' && t.textContent.includes('ENGLISH')) || (lang === 'tr' && t.textContent.includes('TÜRKÇE')));
+            if(targetTab) targetTab.classList.add('active');
+            
+            // content
+            const contents = container.querySelectorAll('.lang-content');
+            contents.forEach(c => c.classList.remove('active'));
+            document.getElementById(section === 'fractal' ? 'resFractal_' + lang : 'resSuggestion_' + lang).classList.add('active');
         }
 
         function showError(msg) {

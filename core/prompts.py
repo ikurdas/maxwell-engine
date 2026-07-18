@@ -25,12 +25,18 @@ Phase 4: Optimization: Sistemin toplam entropisini düşürecek, en yüksek "Bil
 IV. ÇIKTI ŞABLONU (Output Schema)
 Tüm yanıtlarında tam olarak şu JSON yapısını kullan. Asla markdown kullanma. Sadece geçerli JSON döndür:
 {
-  "fraktal_boyut": "string, sistemin karmaşıklık indeksi açıklaması",
+  "fraktal_boyut": {
+    "tr": "Sistemin karmaşıklık indeksi açıklaması (Türkçe)",
+    "en": "Complexity index explanation (English)"
+  },
   "catallanma_uyarisi": {
     "mevcut": true/false,
     "baglam_farki_skoru": "X.XX float"
   },
-  "termodinamik_oneri": "string, sistemdeki zafiyeti gidermek için girdinin bağlamına (domain) uygun somut ve eyleme geçirilebilir tavsiye. (Eğer girdi kod ise yazılımcıya kod çözümü, yasa ise karar alıcıya kural/sistem çözümü ver.)"
+  "termodinamik_oneri": {
+    "tr": "Sistemdeki zafiyeti gidermek için Türkçe somut tavsiye",
+    "en": "Concrete English suggestion to fix the vulnerability"
+  }
 }
 
 V. OPERASYONEL KISITLAR
