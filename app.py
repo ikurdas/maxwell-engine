@@ -78,7 +78,6 @@ async def get_index():
 
 @app.post("/api/analyze")
 async def analyze_endpoint(req: AnalyzeRequest):
-    global engine
     if engine is None:
         return JSONResponse(status_code=503, content={"error": "Motor henüz yüklenmedi veya başlatılamadı."})
     
